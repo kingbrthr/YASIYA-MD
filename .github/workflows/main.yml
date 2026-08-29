@@ -43,9 +43,5 @@ jobs:
           echo "Yasiya MD Bot started at $(date)"
           pm2 start npm --name yasiya-md -- start
 
-      - name: Auto Restart Bot
-        run: |
-          pm2 restart yasiya-md || pm2 start npm --name yasiya-md -- start
-
       - name: Show Logs
         run: pm2 logs yasiya-md --lines 100
