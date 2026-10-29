@@ -1,0 +1,50 @@
+name: YASIYA MD Bot Auto Restart
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run every 6 hours, 7 minutes past the hour (UTC).
+    # Pakistan time: approximately 05:07, 11:07, 17:07, and 23:07.
+    - cron: "7 */6 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: yasiya-md-bot
+  cancel-in-progress: true
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+
+    steps:
+      - name: Checkout Latest Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Pull Latest Update
+        run: git pull --ff-only origin main
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Modules
+        run: npm install --legacy-peer-deps
+
+      - name: Run Bot and Restart if It Exits
+        shell: bash
+        run: |
+          echo "Yasiya MD Bot supervisor started at $(date -u)"
+          while true; do
+            echo "Starting bot at $(date -u)"
+            npm start
+            exit_code=$?
+            echo "Bot exited with code ${exit_code} at $(date -u). Restarting in 10 seconds..."
+            sleep 10
+          done
